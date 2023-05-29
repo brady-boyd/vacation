@@ -1,6 +1,7 @@
 package com.example.d308.UI;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,10 +22,12 @@ import java.util.concurrent.Executors;
 
 public class ExcursionActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private ExcursionAdapter adapter;
-    private List<Excursion> excursions;
+    private ExcursionAdapter excursionAdapter;
+    private List<Excursion> excursionList;
     private EditText editTextExcursionTitle;
     private Button buttonSaveExcursion;
+
+    private int vacationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +37,14 @@ public class ExcursionActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewExcursion);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        excursions = new ArrayList<>();
-        adapter = new ExcursionAdapter(excursions);
-        recyclerView.setAdapter(adapter);
+        excursionList = new ArrayList<>();
+        excursionAdapter = new ExcursionAdapter(excursionList);
+        recyclerView.setAdapter(excursionAdapter);
 
         editTextExcursionTitle = findViewById(R.id.editTextExcursionTitle);
         buttonSaveExcursion = findViewById(R.id.buttonSaveExcursion);
+
+        vacationId = getIntent().getIntExtra("vacationId", -1);
 
         buttonSaveExcursion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +52,17 @@ public class ExcursionActivity extends AppCompatActivity {
                 saveExcursion();
             }
         });
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void saveExcursion() {
@@ -55,12 +71,9 @@ public class ExcursionActivity extends AppCompatActivity {
             Excursion newExcursion = new Excursion();
             newExcursion.setTitle(excursionTitle);
 
-            // Get the vacationId from the intent and set it to the newExcursion
-            int vacationId = getIntent().getIntExtra("vacationId", -1);
             if (vacationId != -1) {
                 newExcursion.setVacationId(vacationId);
 
-                // Get the ExcursionDao and insert the newExcursion
                 ExcursionDao excursionDao = AppDatabase.getInstance(this).excursionDao();
                 Executors.newSingleThreadExecutor().execute(new Runnable() {
                     @Override
@@ -70,6 +83,7 @@ public class ExcursionActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 clearForm();
+                                loadExcursions();
                             }
                         });
                     }
@@ -78,9 +92,25 @@ public class ExcursionActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void clearForm() {
         editTextExcursionTitle.setText("");
+    }
+
+    private void loadExcursions() {
+        ExcursionDao excursionDao = AppDatabase.getInstance(this).excursionDao();
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                List<Excursion> excursions = excursionDao.getAllForVacation(vacationId);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        excursionList.clear();
+                        excursionList.addAll(excursions);
+                        excursionAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
     }
 }

@@ -7,18 +7,21 @@ import android.os.Parcelable;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(foreignKeys = @ForeignKey(entity = Vacation.class,
         parentColumns = "id",
         childColumns = "vacationId",
-        onDelete = CASCADE))
+        onDelete = CASCADE),
+        indices = {@Index("vacationId")})
 public class Excursion implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String title;
     private int vacationId;
 
+    // Rest of the code...
     // Other fields...
 
     public Excursion() {

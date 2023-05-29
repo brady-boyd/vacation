@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "86fc5f48ad86a6efe8ee7a661305b740",
+    "identityHash": "2c6bfddcdef7b7268296be70a58f3d67",
     "entities": [
       {
         "tableName": "Vacation",
@@ -77,7 +77,17 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Excursion_vacationId",
+            "unique": false,
+            "columnNames": [
+              "vacationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Excursion_vacationId` ON `${TABLE_NAME}` (`vacationId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "Vacation",
@@ -96,7 +106,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '86fc5f48ad86a6efe8ee7a661305b740')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c6bfddcdef7b7268296be70a58f3d67')"
     ]
   }
 }

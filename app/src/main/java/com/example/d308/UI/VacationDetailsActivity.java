@@ -21,7 +21,6 @@ import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -35,6 +34,8 @@ public class VacationDetailsActivity extends AppCompatActivity {
     private Vacation currentVacation;
     private RecyclerView recyclerView;
     private ExcursionAdapter excursionAdapter;
+
+    private int vacationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
         currentVacation = intent.getParcelableExtra("vacation");
 
         if (currentVacation != null) {
+            vacationId = currentVacation.getId();
             editTextTitle.setText(currentVacation.getTitle());
             setupRecyclerView();
         }
@@ -94,7 +96,6 @@ public class VacationDetailsActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                updateRecyclerView(); // Update the RecyclerView after saving the changes
                                 finish();
                             }
                         });
@@ -120,7 +121,6 @@ public class VacationDetailsActivity extends AppCompatActivity {
             }
         });
 
-
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,49 +133,16 @@ public class VacationDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        excursionAdapter = new ExcursionAdapter(new ArrayList<>());
-        recyclerView.setAdapter(excursionAdapter);
+    @Override
+    protected void onResume() {
+        super.onResume();
         loadExcursions();
     }
 
-
-    private void loadExcursions() {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (excursionAdapter != null) {
-                            excursionAdapter.setExcursions(excursions);
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    private void updateRecyclerView() {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                final List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Update the adapter with the new list of excursions
-                        // This will refresh the RecyclerView
-                        if (excursionAdapter != null) {
-                            excursionAdapter.setExcursions(excursions);
-                        }
-                    }
-                });
-            }
-        });
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        excursionAdapter = new ExcursionAdapter();
+        recyclerView.setAdapter(excursionAdapter);
     }
 
     @Override
@@ -185,5 +152,22 @@ public class VacationDetailsActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void loadExcursions() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if(currentVacation != null){
+                    List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            excursionAdapter.setExcursions(excursions);
+                        }
+                    });
+                }
+            }
+        });
     }
 }

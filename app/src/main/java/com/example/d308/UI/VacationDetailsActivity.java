@@ -141,7 +141,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        excursionAdapter = new ExcursionAdapter();
+        excursionAdapter = new ExcursionAdapter(excursionDao);
         recyclerView.setAdapter(excursionAdapter);
     }
 

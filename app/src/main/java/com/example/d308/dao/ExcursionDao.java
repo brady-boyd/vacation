@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Delete;
+import androidx.room.Update;
 
 import com.example.d308.entities.Excursion;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Dao
 public interface ExcursionDao {
-    @Query("SELECT * FROM excursion WHERE id = :vacationId")
+    @Query("SELECT * FROM excursion WHERE vacationId = :vacationId")
     List<Excursion> getAllForVacation(int vacationId);
 
     @Insert
@@ -23,4 +24,9 @@ public interface ExcursionDao {
     @Insert
     void insert(Excursion excursion);
 
+    @Query("SELECT * FROM excursion WHERE id = :excursionId")
+    Excursion getExcursion(int excursionId);
+
+    @Update
+    void update(Excursion excursion);
 }

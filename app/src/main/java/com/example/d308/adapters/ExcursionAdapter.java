@@ -1,5 +1,7 @@
 package com.example.d308.adapters;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,17 +23,17 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     private List<Excursion> excursions;
     private ExcursionDao excursionDao;
 
-    public ExcursionAdapter(List<Excursion> excursions) {
+    public ExcursionAdapter(List<Excursion> excursions, ExcursionDao excursionDao) {
         this.excursions = excursions;
+        this.excursionDao = excursionDao;
     }
 
-    public ExcursionAdapter(ExcursionDao dao) {
-        this.excursions = new ArrayList<>();
-        this.excursionDao = dao;
+    public ExcursionAdapter(ExcursionDao excursionDao) {
+        this(new ArrayList<>(), excursionDao);
     }
 
     public ExcursionAdapter() {
-        this(new ArrayList<>());
+        this(new ArrayList<>(), null);
     }
 
     public void setExcursions(List<Excursion> excursions) {
@@ -49,11 +51,8 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     @Override
     public void onBindViewHolder(ExcursionViewHolder holder, int position) {
         Excursion excursion = excursions.get(position);
-        // use the corrected TextView from ViewHolder
         holder.titleTextView.setText(excursion.getTitle());
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -61,22 +60,23 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     }
 
     public void loadExcursions(int vacationId) {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                List<Excursion> excursions = excursionDao.getAllForVacation(vacationId);
+        if (excursionDao == null) {
+            return;
+        }
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Excursion> excursions = excursionDao.getAllForVacation(vacationId);
+            new Handler(Looper.getMainLooper()).post(() -> {
                 setExcursions(excursions);
-            }
+            });
         });
     }
-
 
     public static class ExcursionViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView;
 
         public ExcursionViewHolder(@NonNull View itemView) {
             super(itemView);
-            // this should match the TextView id in your excursion_item_layout
             titleTextView = itemView.findViewById(R.id.textViewExcursion);
         }
     }

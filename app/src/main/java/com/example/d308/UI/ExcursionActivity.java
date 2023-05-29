@@ -1,6 +1,9 @@
 package com.example.d308.UI;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,30 +20,46 @@ public class ExcursionActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ExcursionAdapter adapter;
     private List<Excursion> excursions;
+    private EditText editTextExcursionTitle;
+    private Button buttonSaveExcursion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_excursion);
 
-        // Assuming you have a RecyclerView in your activity_excursion layout
-        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerViewExcursion);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize your list of excursions (could be empty at this point)
         excursions = new ArrayList<>();
-
-        // Initialize your adapter with the list of excursions
         adapter = new ExcursionAdapter(excursions);
-
-        // Set the adapter on the RecyclerView
         recyclerView.setAdapter(adapter);
+
+        editTextExcursionTitle = findViewById(R.id.editTextExcursionTitle);
+        buttonSaveExcursion = findViewById(R.id.buttonSaveExcursion);
+
+        buttonSaveExcursion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveExcursion();
+            }
+        });
     }
 
-    // Method to update the excursions when you have the data
-    public void updateExcursions(List<Excursion> newExcursions) {
-        excursions = newExcursions;
-        adapter.setExcursions(excursions);
-        adapter.notifyDataSetChanged();
+    private void saveExcursion() {
+        String excursionTitle = editTextExcursionTitle.getText().toString().trim();
+        if (!excursionTitle.isEmpty()) {
+            Excursion newExcursion = new Excursion();
+            newExcursion.setTitle(excursionTitle);
+            // Set other properties of the newExcursion object as needed, such as vacationId
+            excursions.add(newExcursion);
+            adapter.notifyDataSetChanged();
+            clearForm();
+            finish(); // Close the ExcursionActivity and return to the previous activity
+        }
+    }
+
+    private void clearForm() {
+        editTextExcursionTitle.setText("");
     }
 }

@@ -11,8 +11,8 @@ import java.util.List;
 
 @Dao
 public interface ExcursionDao {
-    @Query("SELECT * FROM excursion")
-    List<Excursion> getAll();
+    @Query("SELECT * FROM excursion WHERE id = :vacationId")
+    List<Excursion> getAllForVacation(int vacationId);
 
     @Insert
     void insertAll(Excursion... excursions);

@@ -69,11 +69,13 @@ public class VacationActivity extends AppCompatActivity implements VacationAdapt
                     public void run() {
                         // Set the retrieved vacations to the adapter
                         adapter.setVacations(vacations);
+                        adapter.notifyDataSetChanged();
                     }
                 });
             }
         });
     }
+
 
     @Override
     public void onVacationClick(Vacation vacation) {

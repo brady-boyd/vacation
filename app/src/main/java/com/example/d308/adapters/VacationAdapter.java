@@ -25,7 +25,8 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
     }
 
     public void setVacations(List<Vacation> vacations) {
-        this.vacations = vacations;
+        this.vacations.clear();
+        this.vacations.addAll(vacations);
         notifyDataSetChanged();
     }
 
@@ -53,6 +54,11 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
                 return true;
             }
         });
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return vacations.get(position).getId(); // Assuming Vacation class has a getId() method
     }
 
     @Override

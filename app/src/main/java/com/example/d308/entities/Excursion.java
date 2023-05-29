@@ -1,23 +1,40 @@
 package com.example.d308.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Excursion {
+public class Excursion implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String title;
 
     // Other fields...
 
-    public Excursion(int id, String title /*, other parameters...*/) {
-        this.id = id;
-        this.title = title;
-        // Initialize other fields...
+    public Excursion() {
+        // Empty constructor required by Room
     }
 
-    // Getter and setter methods...
+    protected Excursion(Parcel in) {
+        id = in.readInt();
+        title = in.readString();
+        // Read other fields from Parcel...
+    }
+
+    public static final Parcelable.Creator<Excursion> CREATOR = new Parcelable.Creator<Excursion>() {
+        @Override
+        public Excursion createFromParcel(Parcel in) {
+            return new Excursion(in);
+        }
+
+        @Override
+        public Excursion[] newArray(int size) {
+            return new Excursion[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -36,5 +53,16 @@ public class Excursion {
     }
 
     // Other getter and setter methods...
-}
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(title);
+        // Write other fields to Parcel...
+    }
+}

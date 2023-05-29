@@ -6,12 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".UI.ExcursionActivity">
 
+    <EditText
+        android:id="@+id/editTextExcursionTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter excursion title"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSaveExcursion"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonSaveExcursion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editTextExcursionTitle" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewExcursion"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/editTextExcursionTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

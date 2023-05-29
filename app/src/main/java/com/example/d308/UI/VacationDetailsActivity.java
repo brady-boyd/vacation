@@ -9,13 +9,19 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.d308.R;
+import com.example.d308.adapters.ExcursionAdapter;
+import com.example.d308.dao.ExcursionDao;
 import com.example.d308.dao.VacationDao;
 import com.example.d308.database.AppDatabase;
+import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 
 public class VacationDetailsActivity extends AppCompatActivity {
@@ -24,7 +30,10 @@ public class VacationDetailsActivity extends AppCompatActivity {
     private Button buttonDelete;
     private FloatingActionButton floatingActionButton;
     private VacationDao vacationDao;
+    private ExcursionDao excursionDao;
     private Vacation currentVacation;
+    private RecyclerView recyclerView;
+    private ExcursionAdapter excursionAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,25 +44,24 @@ public class VacationDetailsActivity extends AppCompatActivity {
         buttonSave = findViewById(R.id.buttonSave);
         buttonDelete = findViewById(R.id.buttonDelete);
         floatingActionButton = findViewById(R.id.floatingActionButton);
+        recyclerView = findViewById(R.id.recyclerViewExcursion);
 
-        // Enable the Up button
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Get an instance of the AppDatabase
         AppDatabase database = AppDatabase.getInstance(this);
 
-        // Get the VacationDao from the AppDatabase
         vacationDao = database.vacationDao();
+        excursionDao = database.excursionDao();
 
         Intent intent = getIntent();
-        currentVacation = (Vacation) intent.getParcelableExtra("vacation");
+        currentVacation = intent.getParcelableExtra("vacation");
 
         if (currentVacation != null) {
-            // If currentVacation is not null, we are editing an existing vacation
             editTextTitle.setText(currentVacation.getTitle());
+            setupRecyclerView();
         }
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
@@ -61,61 +69,89 @@ public class VacationDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String title = editTextTitle.getText().toString();
 
-                // Create a new Vacation object with the entered title
-                final Vacation newVacation;
-                if (currentVacation == null) {
-                    // If currentVacation is null, we are creating a new vacation
-                    newVacation = new Vacation();
-                } else {
-                    // If currentVacation is not null, we are updating an existing vacation
-                    newVacation = currentVacation;
-                }
-
-                newVacation.setTitle(title);
-
-                // Insert or update the newVacation into the database
-                Executors.newSingleThreadExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (currentVacation == null) {
-                            vacationDao.insertAll(newVacation);
-                        } else {
-                            vacationDao.update(newVacation);
-                        }
-                    }
-                });
-
-                // Finish the activity
-                finish();
-            }
-        });
-
-        // Add click listener to the delete button
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 if (currentVacation != null) {
-                    // Delete the current vacation
+                    currentVacation.setTitle(title);
+
                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                         @Override
                         public void run() {
-                            vacationDao.delete(currentVacation);
+                            vacationDao.update(currentVacation);
+                            updateRecyclerView(); // Update the RecyclerView after saving the changes
                         }
                     });
                 }
 
-                // Regardless of whether a vacation was deleted, finish the activity
                 finish();
             }
         });
 
-        // Add click listener to the floating action button
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentVacation != null) {
+                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            vacationDao.delete(currentVacation);
+                            updateRecyclerView(); // Update the RecyclerView after deleting the vacation
+                        }
+                    });
+                }
+
+                finish();
+            }
+        });
+
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start the ExcursionActivity
                 Intent excursionIntent = new Intent(VacationDetailsActivity.this, ExcursionActivity.class);
+                if (currentVacation != null) {
+                    excursionIntent.putExtra("vacationId", currentVacation.getId());
+                }
                 startActivity(excursionIntent);
+            }
+        });
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        loadExcursions(); // Load the excursions and set them on the adapter
+    }
+
+    private void loadExcursions() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (excursionAdapter != null) {
+                            excursionAdapter.setExcursions(excursions);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void updateRecyclerView() {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                final List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Update the adapter with the new list of excursions
+                        // This will refresh the RecyclerView
+                        if (excursionAdapter != null) {
+                            excursionAdapter.setExcursions(excursions);
+                        }
+                    }
+                });
             }
         });
     }
@@ -123,9 +159,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // Start the VacationActivity
-            Intent vacationIntent = new Intent(VacationDetailsActivity.this, VacationActivity.class);
-            startActivity(vacationIntent);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

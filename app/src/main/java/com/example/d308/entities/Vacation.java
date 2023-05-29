@@ -4,7 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import androidx.room.Relation;
+
+import java.util.List;
 
 @Entity
 public class Vacation implements Parcelable {
@@ -14,7 +18,10 @@ public class Vacation implements Parcelable {
     private String hotel;
     private String startDate;
     private String endDate;
-    // Add other properties as needed
+
+    @Ignore
+    @Relation(parentColumn = "id", entityColumn = "vacationId")
+    private List<Excursion> excursions;
 
     public Vacation() {
         // Empty constructor required by Room
@@ -26,6 +33,7 @@ public class Vacation implements Parcelable {
         hotel = in.readString();
         startDate = in.readString();
         endDate = in.readString();
+        excursions = in.createTypedArrayList(Excursion.CREATOR);
     }
 
     public static final Creator<Vacation> CREATOR = new Creator<Vacation>() {
@@ -80,7 +88,13 @@ public class Vacation implements Parcelable {
         this.endDate = endDate;
     }
 
-    // Add other getters and setters as needed
+    public List<Excursion> getExcursions() {
+        return excursions;
+    }
+
+    public void setExcursions(List<Excursion> excursions) {
+        this.excursions = excursions;
+    }
 
     @Override
     public int describeContents() {
@@ -94,5 +108,6 @@ public class Vacation implements Parcelable {
         dest.writeString(hotel);
         dest.writeString(startDate);
         dest.writeString(endDate);
+        dest.writeTypedList(excursions);
     }
 }

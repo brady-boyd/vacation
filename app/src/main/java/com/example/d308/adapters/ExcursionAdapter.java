@@ -41,6 +41,7 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
 
     public void setExcursions(List<Excursion> excursions) {
         this.excursions = excursions;
+        notifyDataSetChanged();
     }
 
     static class ExcursionViewHolder extends RecyclerView.ViewHolder {
@@ -53,4 +54,3 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
         }
     }
 }
-

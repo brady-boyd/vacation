@@ -22,8 +22,9 @@
         android:layout_marginBottom="222dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/buttonDelete"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTitle"
-        tools:layout_editor_absoluteX="0dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTitle" />
 
     <Button
         android:id="@+id/buttonDelete"

@@ -12,7 +12,7 @@ import com.example.d308.R;
 import com.example.d308.adapters.VacationAdapter;
 import com.example.d308.dao.VacationDao;
 import com.example.d308.database.AppDatabase;
-import com.example.d308.entities.Vacation;
+import com.example.d308.entities.VacationWithExcursions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -62,7 +62,7 @@ public class VacationActivity extends AppCompatActivity implements VacationAdapt
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                final List<Vacation> vacations = vacationDao.getAll();
+                final List<VacationWithExcursions> vacations = vacationDao.getAllWithExcursions();
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -78,25 +78,28 @@ public class VacationActivity extends AppCompatActivity implements VacationAdapt
 
 
     @Override
-    public void onVacationClick(Vacation vacation) {
+    public void onVacationClick(VacationWithExcursions vacation) {
         Intent intent = new Intent(VacationActivity.this, VacationDetailsActivity.class);
-        intent.putExtra("vacation", vacation);
+        intent.putExtra("vacation", vacation.vacation);
         startActivity(intent);
     }
 
     @Override
-    public void onVacationLongClick(Vacation vacation) {
+    public void onVacationLongClick(VacationWithExcursions vacation) {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                vacationDao.delete(vacation);
+                vacationDao.delete(vacation.vacation);
+                final List<VacationWithExcursions> vacations = vacationDao.getAllWithExcursions();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateRecyclerView();
+                        adapter.setVacations(vacations);
+                        adapter.notifyDataSetChanged();
                     }
                 });
             }
         });
     }
 }
+

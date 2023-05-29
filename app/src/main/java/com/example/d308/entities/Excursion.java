@@ -1,16 +1,23 @@
 package com.example.d308.entities;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity
+@Entity(foreignKeys = @ForeignKey(entity = Vacation.class,
+        parentColumns = "id",
+        childColumns = "vacationId",
+        onDelete = CASCADE))
 public class Excursion implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String title;
+    private int vacationId;
 
     // Other fields...
 
@@ -50,6 +57,14 @@ public class Excursion implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public int getVacationId() {
+        return vacationId;
+    }
+
+    public void setVacationId(int vacationId) {
+        this.vacationId = vacationId;
     }
 
     // Other getter and setter methods...

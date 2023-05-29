@@ -21,6 +21,7 @@ import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -69,19 +70,36 @@ public class VacationDetailsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String title = editTextTitle.getText().toString();
 
-                if (currentVacation != null) {
-                    currentVacation.setTitle(title);
-
-                    Executors.newSingleThreadExecutor().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            vacationDao.update(currentVacation);
-                            updateRecyclerView(); // Update the RecyclerView after saving the changes
-                        }
-                    });
+                if (title.isEmpty()) {
+                    // Show some error about the title being necessary.
+                    return;
                 }
 
-                finish();
+                if (currentVacation == null) {
+                    // If there's no currentVacation, create a new one.
+                    currentVacation = new Vacation();
+                }
+
+                currentVacation.setTitle(title);
+
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentVacation.getId() > 0) {
+                            vacationDao.update(currentVacation);
+                        } else {
+                            vacationDao.insertAll(currentVacation);
+                        }
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateRecyclerView(); // Update the RecyclerView after saving the changes
+                                finish();
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -93,14 +111,15 @@ public class VacationDetailsActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             vacationDao.delete(currentVacation);
-                            updateRecyclerView(); // Update the RecyclerView after deleting the vacation
+                            finish();
                         }
                     });
+                } else {
+                    finish();
                 }
-
-                finish();
             }
         });
+
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,8 +135,11 @@ public class VacationDetailsActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        loadExcursions(); // Load the excursions and set them on the adapter
+        excursionAdapter = new ExcursionAdapter(new ArrayList<>());
+        recyclerView.setAdapter(excursionAdapter);
+        loadExcursions();
     }
+
 
     private void loadExcursions() {
         Executors.newSingleThreadExecutor().execute(new Runnable() {

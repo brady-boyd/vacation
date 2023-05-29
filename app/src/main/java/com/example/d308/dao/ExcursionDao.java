@@ -19,4 +19,8 @@ public interface ExcursionDao {
 
     @Delete
     void delete(Excursion excursion);
+
+    @Insert
+    void insert(Excursion excursion);
+
 }

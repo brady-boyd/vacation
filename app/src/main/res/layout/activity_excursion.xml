@@ -25,8 +25,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewExcursion"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="311dp"
+        android:layout_height="244dp"
+        android:layout_marginTop="140dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editTextExcursionTitle" />

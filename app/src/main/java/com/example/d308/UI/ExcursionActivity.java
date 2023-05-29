@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.d308.R;
 import com.example.d308.adapters.ExcursionAdapter;
+import com.example.d308.dao.ExcursionDao;
+import com.example.d308.database.AppDatabase;
 import com.example.d308.entities.Excursion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class ExcursionActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -51,13 +54,31 @@ public class ExcursionActivity extends AppCompatActivity {
         if (!excursionTitle.isEmpty()) {
             Excursion newExcursion = new Excursion();
             newExcursion.setTitle(excursionTitle);
-            // Set other properties of the newExcursion object as needed, such as vacationId
-            excursions.add(newExcursion);
-            adapter.notifyDataSetChanged();
-            clearForm();
-            finish(); // Close the ExcursionActivity and return to the previous activity
+
+            // Get the vacationId from the intent and set it to the newExcursion
+            int vacationId = getIntent().getIntExtra("vacationId", -1);
+            if (vacationId != -1) {
+                newExcursion.setVacationId(vacationId);
+
+                // Get the ExcursionDao and insert the newExcursion
+                ExcursionDao excursionDao = AppDatabase.getInstance(this).excursionDao();
+                Executors.newSingleThreadExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        excursionDao.insert(newExcursion);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                clearForm();
+                            }
+                        });
+                    }
+                });
+            }
         }
     }
+
+
 
     private void clearForm() {
         editTextExcursionTitle.setText("");

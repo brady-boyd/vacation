@@ -1,12 +1,13 @@
 package com.example.d308.dao;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Delete;
 import androidx.room.Update;
 
 import com.example.d308.entities.Vacation;
+import com.example.d308.entities.VacationWithExcursions;
 
 import java.util.List;
 
@@ -14,6 +15,9 @@ import java.util.List;
 public interface VacationDao {
     @Query("SELECT * FROM vacation")
     List<Vacation> getAll();
+
+    @Query("SELECT * FROM vacation")
+    List<VacationWithExcursions> getAllWithExcursions();
 
     @Insert
     void insertAll(Vacation... vacations);
@@ -24,3 +28,4 @@ public interface VacationDao {
     @Delete
     void delete(Vacation vacation);
 }
+

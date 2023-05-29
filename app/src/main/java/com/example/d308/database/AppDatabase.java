@@ -11,7 +11,7 @@ import com.example.d308.dao.VacationDao;
 import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 
-@Database(entities = {Vacation.class, Excursion.class}, version = 1)
+@Database(entities = {Vacation.class, Excursion.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract VacationDao vacationDao();
     public abstract ExcursionDao excursionDao();
@@ -24,6 +24,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "app_database")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

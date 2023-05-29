@@ -9,14 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.d308.R;
-import com.example.d308.entities.Vacation;
+import com.example.d308.entities.VacationWithExcursions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.VacationViewHolder> {
 
-    private List<Vacation> vacations;
+    private List<VacationWithExcursions> vacations;
     private VacationClickListener listener;
 
     public VacationAdapter(VacationClickListener listener) {
@@ -24,7 +24,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
         this.listener = listener;
     }
 
-    public void setVacations(List<Vacation> vacations) {
+    public void setVacations(List<VacationWithExcursions> vacations) {
         this.vacations.clear();
         this.vacations.addAll(vacations);
         notifyDataSetChanged();
@@ -39,8 +39,8 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
 
     @Override
     public void onBindViewHolder(@NonNull VacationViewHolder holder, int position) {
-        Vacation vacation = vacations.get(position);
-        holder.titleTextView.setText(vacation.getTitle());
+        VacationWithExcursions vacation = vacations.get(position);
+        holder.titleTextView.setText(vacation.vacation.getTitle());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,7 +58,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
 
     @Override
     public long getItemId(int position) {
-        return vacations.get(position).getId(); // Assuming Vacation class has a getId() method
+        return vacations.get(position).vacation.getId(); // Assuming Vacation class has a getId() method
     }
 
     @Override
@@ -77,7 +77,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
     }
 
     public interface VacationClickListener {
-        void onVacationClick(Vacation vacation);
-        void onVacationLongClick(Vacation vacation);
+        void onVacationClick(VacationWithExcursions vacation);
+        void onVacationLongClick(VacationWithExcursions vacation);
     }
 }

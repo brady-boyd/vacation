@@ -328,21 +328,59 @@ public class VacationDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        } else if (item.getItemId() == R.id.action_alert) {
-            // Handle the menu item click for "Set Alert"
-            // Show an alert dialog with the vacation details
-            showAlert();
-
-            // Set the alert for start and end date
-            setAlert();
-
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_alert:
+                showAlert();
+                setAlert();
+                return true;
+            case R.id.action_share: // handle share option
+                shareVacationDetails();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
+
+    private void shareVacationDetails() {
+        if (currentVacation != null) {
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    StringBuilder shareBody = new StringBuilder();
+                    shareBody.append("Title: ").append(currentVacation.getTitle()).append("\n");
+                    shareBody.append("Hotel: ").append(currentVacation.getHotel()).append("\n");
+                    shareBody.append("Start Date: ").append(currentVacation.getStartDate()).append("\n");
+                    shareBody.append("End Date: ").append(currentVacation.getEndDate()).append("\n");
+
+                    // Add excursion details
+                    List<Excursion> excursions = excursionDao.getAllForVacation(currentVacation.getId());
+                    if (excursions != null && !excursions.isEmpty()) {
+                        shareBody.append("\nExcursions:\n");
+                        for (Excursion excursion : excursions) {
+                            shareBody.append("Title: ").append(excursion.getTitle()).append("\n");
+                        }
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("text/plain");
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Vacation Details");
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody.toString());
+                            startActivity(Intent.createChooser(sharingIntent, "Share via"));
+                        }
+                    });
+                }
+            });
+        } else {
+            Snackbar.make(editTextTitle, "No Vacation Details to Share", Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
 
 
     private void loadExcursions() {

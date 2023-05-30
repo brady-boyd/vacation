@@ -31,6 +31,10 @@ public interface VacationDao {
     @Delete
     void delete(Vacation vacation);
 
+    @Insert
+    long insert(Vacation vacation);
+
+
     @Transaction
     @Query("SELECT * FROM vacation WHERE id = :vacationId")
     VacationWithExcursions getVacationWithExcursions(int vacationId);

@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 import com.example.d308.entities.VacationWithExcursions;
 
@@ -29,5 +30,12 @@ public interface VacationDao {
 
     @Delete
     void delete(Vacation vacation);
+
+    @Transaction
+    @Query("SELECT * FROM vacation WHERE id = :vacationId")
+    VacationWithExcursions getVacationWithExcursions(int vacationId);
+
+    @Query("SELECT * FROM excursion WHERE vacationId = :vacationId")
+    List<Excursion> getAllExcursionsForVacation(int vacationId);
 }
 

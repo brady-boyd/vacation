@@ -14,6 +14,7 @@ import com.example.d308.dao.VacationDao;
 import com.example.d308.database.AppDatabase;
 import com.example.d308.entities.VacationWithExcursions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -89,17 +90,32 @@ public class VacationActivity extends AppCompatActivity implements VacationAdapt
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                vacationDao.delete(vacation.vacation);
-                final List<VacationWithExcursions> vacations = vacationDao.getAllWithExcursions();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.setVacations(vacations);
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+                // Check if the vacation has excursions
+                if (vacation.excursions != null && !vacation.excursions.isEmpty()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Show a Snackbar message indicating that the vacation cannot be deleted
+                            Snackbar.make(recyclerView, "Cannot delete vacation with excursions", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    vacationDao.delete(vacation.vacation);
+                    final List<VacationWithExcursions> vacations = vacationDao.getAllWithExcursions();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.setVacations(vacations);
+                            adapter.notifyDataSetChanged();
+
+                            // Show a Snackbar message indicating that the vacation was deleted
+                            Snackbar.make(recyclerView, "Vacation deleted", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }
 }
+
 

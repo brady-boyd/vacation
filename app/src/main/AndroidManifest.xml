@@ -15,12 +15,12 @@
 
         <activity
             android:name=".UI.ExcursionActivity"
+            android:label="Excursion Details"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
 
 
         <activity

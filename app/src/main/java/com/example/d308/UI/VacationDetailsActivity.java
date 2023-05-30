@@ -2,6 +2,7 @@ package com.example.d308.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import com.example.d308.database.AppDatabase;
 import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -108,18 +110,37 @@ public class VacationDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (currentVacation != null) {
+                    // Check if the vacation has excursions
+                    Log.d("VacationDetailsActivity", "Delete button clicked");
                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                         @Override
                         public void run() {
-                            vacationDao.delete(currentVacation);
-                            finish();
+                            List<Excursion> excursions = vacationDao.getAllExcursionsForVacation(currentVacation.getId());
+                            if (excursions != null && !excursions.isEmpty()) {
+                                // The vacation has excursions, show a message or perform necessary action
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Snackbar.make(v, "Cannot delete vacation with excursions!", Snackbar.LENGTH_SHORT).show();
+                                        Log.d("VacationDetailsActivity", "Vacation has excursions");
+                                    }
+                                });
+                            } else {
+                                // Delete the current vacation
+                                Log.d("VacationDetailsActivity", "Deleting vacation");
+                                vacationDao.delete(currentVacation);
+                                finish();
+                            }
                         }
                     });
                 } else {
+                    // Finish the activity
                     finish();
                 }
             }
         });
+
+
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override

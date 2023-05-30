@@ -25,7 +25,11 @@ import com.example.d308.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -49,6 +53,9 @@ public class VacationDetailsActivity extends AppCompatActivity {
 
     private int vacationId;
 
+    final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", Locale.getDefault());
+    final DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +77,8 @@ public class VacationDetailsActivity extends AppCompatActivity {
         int currentMonth = calendar.get(Calendar.MONTH);
         int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
         buttonEdit = findViewById(R.id.buttonEdit);
+        editTextStartDate = findViewById(R.id.editTextStartDate);
+        editTextEndDate = findViewById(R.id.editTextEndDate);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -205,17 +214,37 @@ public class VacationDetailsActivity extends AppCompatActivity {
             }
         });
 
+
         buttonDatePickerStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Open date picker dialog and update the start date TextView
                 DatePickerDialog datePickerDialog = new DatePickerDialog(
                         VacationDetailsActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                String startDate = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
-                                editTextStartDate.setText(startDate);
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(year, monthOfYear, dayOfMonth);
+
+                                String newStartDate = dateFormat.format(calendar.getTime());
+
+                                // Check if new start date is after current end date
+                                String endDateStr = editTextEndDate.getText().toString();
+                                if (!endDateStr.isEmpty()) {
+                                    try {
+                                        Date endDate = dateFormat.parse(endDateStr);
+                                        Date chosenStartDate = dateFormat.parse(newStartDate);
+
+                                        if (endDate != null && chosenStartDate != null && chosenStartDate.after(endDate)) {
+                                            Snackbar.make(v, "Start date should be before end date", Snackbar.LENGTH_LONG).show();
+                                            return; // don't update the start date field
+                                        }
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                editTextStartDate.setText(newStartDate);
                             }
                         },
                         currentYear,
@@ -226,17 +255,34 @@ public class VacationDetailsActivity extends AppCompatActivity {
             }
         });
 
+
         buttonDatePickerEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Open date picker dialog and update the end date TextView
                 DatePickerDialog datePickerDialog = new DatePickerDialog(
                         VacationDetailsActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                String endDate = String.format(Locale.getDefault(), "%d-%02d-%02d", year, month + 1, dayOfMonth);
+                            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(year, monthOfYear, dayOfMonth);
+
+                                String endDate = dateFormat.format(calendar.getTime());
                                 editTextEndDate.setText(endDate);
+
+                                // Check if end date is before start date
+                                String startDateStr = editTextStartDate.getText().toString();
+                                try {
+                                    Date startDate = dateFormat.parse(startDateStr);
+                                    Date chosenEndDate = dateFormat.parse(endDate);
+
+                                    if (chosenEndDate.before(startDate)) {
+                                        Snackbar.make(v, "End date should be after start date", Snackbar.LENGTH_LONG).show();
+                                        editTextEndDate.setText(""); // clear the end date field
+                                    }
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         },
                         currentYear,

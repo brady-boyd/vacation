@@ -45,6 +45,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
     private Button buttonDatePickerEnd;
     private EditText editTextStartDate;
     private EditText editTextEndDate;
+    private Button buttonEdit;
 
     private int vacationId;
 
@@ -68,6 +69,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
         int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        buttonEdit = findViewById(R.id.buttonEdit);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -90,6 +92,15 @@ public class VacationDetailsActivity extends AppCompatActivity {
             editTextEndDate.setText(currentVacation.getEndDate());
             setupRecyclerView();
         }
+
+        editTextTitle.setEnabled(false);
+        editTextHotel.setEnabled(false);
+        editTextStartDate.setEnabled(false);
+        editTextEndDate.setEnabled(false);
+        buttonDatePickerStart.setEnabled(false);
+        buttonDatePickerEnd.setEnabled(false);
+        buttonEdit.setVisibility(View.VISIBLE);
+        buttonSave.setVisibility(View.GONE);
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +138,15 @@ public class VacationDetailsActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                // Disable all fields and show the Edit button
+                                editTextTitle.setEnabled(false);
+                                editTextHotel.setEnabled(false);
+                                editTextStartDate.setEnabled(false);
+                                editTextEndDate.setEnabled(false);
+                                buttonDatePickerStart.setEnabled(false);
+                                buttonDatePickerEnd.setEnabled(false);
+                                buttonEdit.setVisibility(View.VISIBLE);
+                                buttonSave.setVisibility(View.GONE);
                                 finish();
                             }
                         });
@@ -166,6 +186,22 @@ public class VacationDetailsActivity extends AppCompatActivity {
                     // Finish the activity
                     finish();
                 }
+            }
+        });
+
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Enable all the fields for editing
+                editTextTitle.setEnabled(true);
+                editTextHotel.setEnabled(true);
+                editTextStartDate.setEnabled(true);
+                editTextEndDate.setEnabled(true);
+                buttonDatePickerStart.setEnabled(true);
+                buttonDatePickerEnd.setEnabled(true);
+                // Make the Edit button invisible and the Save button visible
+                buttonEdit.setVisibility(View.GONE);
+                buttonSave.setVisibility(View.VISIBLE);
             }
         });
 
@@ -243,6 +279,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     private void loadExcursions() {
         Executors.newSingleThreadExecutor().execute(new Runnable() {

@@ -1,9 +1,14 @@
 package com.example.d308.UI;
 
+import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +55,9 @@ public class VacationDetailsActivity extends AppCompatActivity {
     private EditText editTextStartDate;
     private EditText editTextEndDate;
     private Button buttonEdit;
+    private static final int NOTIFICATION_ID_START = 1;
+    private static final int NOTIFICATION_ID_END = 2;
+
 
     private int vacationId;
 
@@ -163,6 +171,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
                 });
             }
         });
+
 
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -322,6 +331,15 @@ public class VacationDetailsActivity extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.action_alert) {
+            // Handle the menu item click for "Set Alert"
+            // Show an alert dialog with the vacation details
+            showAlert();
+
+            // Set the alert for start and end date
+            setAlert();
+
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -342,5 +360,66 @@ public class VacationDetailsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void showAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Alert")
+                .setMessage("Alerts set for start date and end date!")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
+        return true;
+    }
+
+    private void scheduleNotification(Calendar calendar, int notificationId, String message) {
+        Intent notificationIntent = new Intent(this, NotificationReceiver.class);
+        notificationIntent.putExtra(NotificationReceiver.EXTRA_NOTIFICATION_ID, notificationId);
+        notificationIntent.putExtra(NotificationReceiver.EXTRA_MESSAGE, message);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                notificationId,
+                notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    pendingIntent
+            );
+        }
+    }
+
+    private void setAlert() {
+        String startDateStr = editTextStartDate.getText().toString();
+        String endDateStr = editTextEndDate.getText().toString();
+
+        if (startDateStr.isEmpty() || endDateStr.isEmpty()) {
+            return;
+        }
+
+        try {
+            Date startDate = dateFormat.parse(startDateStr);
+            Date endDate = dateFormat.parse(endDateStr);
+
+            Calendar calendarStart = Calendar.getInstance();
+            calendarStart.setTime(startDate);
+
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTime(endDate);
+
+            scheduleNotification(calendarStart, NOTIFICATION_ID_START, "Today is the beginning of your vacation!");
+            scheduleNotification(calendarEnd, NOTIFICATION_ID_END, "Today is the end of your vacation!");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

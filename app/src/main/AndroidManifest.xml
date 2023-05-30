@@ -2,6 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.d308">
 
+    <uses-permission android:name="android.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -48,6 +52,11 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <receiver
+            android:name=".UI.NotificationReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 

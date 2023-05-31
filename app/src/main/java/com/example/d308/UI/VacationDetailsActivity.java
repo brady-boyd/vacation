@@ -165,7 +165,6 @@ public class VacationDetailsActivity extends AppCompatActivity {
                                 buttonDatePickerEnd.setEnabled(false);
                                 buttonEdit.setVisibility(View.VISIBLE);
                                 buttonSave.setVisibility(View.GONE);
-                                finish();
                             }
                         });
                     }

@@ -11,7 +11,7 @@ import com.example.d308.dao.VacationDao;
 import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
 
-@Database(entities = {Vacation.class, Excursion.class}, version = 3)
+@Database(entities = {Vacation.class, Excursion.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract VacationDao vacationDao();
     public abstract ExcursionDao excursionDao();

@@ -20,6 +20,7 @@ public class Excursion implements Parcelable {
     private int id;
     private String title;
     private int vacationId;
+    private String date;
 
     // Rest of the code...
     // Other fields...
@@ -69,6 +70,10 @@ public class Excursion implements Parcelable {
     public void setVacationId(int vacationId) {
         this.vacationId = vacationId;
     }
+
+    public String getDate() {return date;}
+
+    public void setDate(String date) { this.date = date; }
 
     // Other getter and setter methods...
 

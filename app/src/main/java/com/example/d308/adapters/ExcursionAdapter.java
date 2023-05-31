@@ -53,6 +53,7 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
     public void onBindViewHolder(ExcursionViewHolder holder, int position) {
         Excursion excursion = excursions.get(position);
         holder.titleTextView.setText(excursion.getTitle());
+        holder.dateTextView.setText(excursion.getDate()); // Set the date here
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(excursion);
@@ -88,10 +89,12 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
 
     public class ExcursionViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView;
+        private TextView dateTextView;
 
         public ExcursionViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.textViewExcursion);
+            dateTextView = itemView.findViewById(R.id.textViewDate);
         }
     }
 }

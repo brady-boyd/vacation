@@ -1,10 +1,11 @@
 package com.example.d308.UI;
 
-import android.content.Intent;
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 
 import androidx.appcompat.app.ActionBar;
@@ -14,16 +15,22 @@ import com.example.d308.R;
 import com.example.d308.dao.ExcursionDao;
 import com.example.d308.database.AppDatabase;
 import com.example.d308.entities.Excursion;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 
 public class ExcursionActivity extends AppCompatActivity {
     private EditText editTextExcursionTitle;
     private Button buttonSaveExcursion;
     private Button buttonDeleteExcursion;
+    private EditText editTextExcursionDate;
 
     private int excursionId;
     private ExcursionDao excursionDao;
+    private int vacationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,8 @@ public class ExcursionActivity extends AppCompatActivity {
         editTextExcursionTitle = findViewById(R.id.editTextExcursionTitle);
         buttonSaveExcursion = findViewById(R.id.buttonSaveExcursion);
         buttonDeleteExcursion = findViewById(R.id.buttonDeleteExcursion);
+        editTextExcursionDate = findViewById(R.id.editTextExcursionDate);
+        vacationId = getIntent().getIntExtra("vacationId", -1);
 
         buttonDeleteExcursion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,21 +58,25 @@ public class ExcursionActivity extends AppCompatActivity {
         AppDatabase database = AppDatabase.getInstance(this);
         excursionDao = database.excursionDao();
 
-        // Get the excursion ID from the intent.
         excursionId = getIntent().getIntExtra("EXCURSION_ID", -1);
         if (excursionId != -1) {
-            // This is an edit operation. Load the excursion object.
             Executors.newSingleThreadExecutor().execute(() -> {
                 Excursion excursion = excursionDao.getExcursion(excursionId);
                 if (excursion != null) {
                     runOnUiThread(() -> {
-                        // Populate the fields with the excursion data.
                         editTextExcursionTitle.setText(excursion.getTitle());
-                        // similarly set other fields...
+                        editTextExcursionDate.setText(excursion.getDate());
                     });
                 }
             });
         }
+
+        editTextExcursionDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog();
+            }
+        });
 
         buttonSaveExcursion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +85,7 @@ public class ExcursionActivity extends AppCompatActivity {
             }
         });
 
-        loadExcursion(); // load the excursion details
+        loadExcursion();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -86,90 +99,98 @@ public class ExcursionActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveExcursion() {
-        String excursionTitle = editTextExcursionTitle.getText().toString().trim();
-        if (!excursionTitle.isEmpty()) {
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    Excursion updatedExcursion;
-
-                    if (excursionId > 0) {
-                        // Excursion already exists, get the current data
-                        updatedExcursion = excursionDao.getExcursion(excursionId);
-                        if (updatedExcursion == null) {
-                            // Handle the case where the excursion does not exist.
-                            return;
-                        }
-                    } else {
-                        // Excursion is new, create a new object
-                        updatedExcursion = new Excursion();
-                    }
-
-                    updatedExcursion.setTitle(excursionTitle);
-
-                    Intent intent = getIntent();
-                    int vacationId = intent.getIntExtra("vacationId", -1);
-                    if (vacationId != -1) {
-                        updatedExcursion.setVacationId(vacationId);
-
-                        if (excursionId > 0) {
-                            // Excursion already exists, perform update
-                            excursionDao.update(updatedExcursion);
-                        } else {
-                            // Excursion is new, perform insert
-                            excursionDao.insert(updatedExcursion);
-                        }
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                finish();
-                            }
-                        });
-                    }
+    private void loadExcursion() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Excursion excursion = excursionDao.getExcursion(excursionId);
+            runOnUiThread(() -> {
+                if (excursion != null) {
+                    editTextExcursionTitle.setText(excursion.getTitle());
+                    editTextExcursionDate.setText(excursion.getDate());
                 }
             });
-        }
-    }
-
-
-    private void loadExcursion() {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                Excursion excursion = excursionDao.getExcursion(excursionId);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (excursion != null) {
-                            editTextExcursionTitle.setText(excursion.getTitle());
-                        }
-                    }
-                });
-            }
         });
     }
 
     private void deleteExcursion() {
-        if (excursionId > 0) { // If the excursion exists
-            Executors.newSingleThreadExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    Excursion excursion = excursionDao.getExcursion(excursionId);
-                    if (excursion != null) {
-                        excursionDao.delete(excursion);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                finish(); // Return to the previous screen after deleting
-                            }
-                        });
-                    }
+        if (excursionId > 0) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                Excursion excursion = excursionDao.getExcursion(excursionId);
+                if (excursion != null) {
+                    excursionDao.delete(excursion);
+                    runOnUiThread(() -> {
+                        finish();
+                    });
                 }
             });
         }
     }
 
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        String excursionDate = formatDate(year, month, dayOfMonth);
+                        editTextExcursionDate.setText(excursionDate);
+                    }
+                },
+                year,
+                month,
+                day
+        );
+        datePickerDialog.show();
+    }
+
+    private String formatDate(int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.US);
+        return dateFormat.format(calendar.getTime());
+    }
+
+    private void saveExcursion() {
+        String excursionTitle = editTextExcursionTitle.getText().toString().trim();
+        String excursionDate = editTextExcursionDate.getText().toString().trim();
+
+        if (!excursionTitle.isEmpty() && !excursionDate.isEmpty()) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                Excursion updatedExcursion;
+
+                if (excursionId > 0) {
+                    updatedExcursion = excursionDao.getExcursion(excursionId);
+                    if (updatedExcursion == null) {
+                        return;
+                    }
+                } else {
+                    updatedExcursion = new Excursion();
+                }
+
+                updatedExcursion.setVacationId(vacationId);  // set vacationId
+                updatedExcursion.setTitle(excursionTitle);
+                updatedExcursion.setDate(excursionDate);
+
+                if (excursionId > 0) {
+                    excursionDao.update(updatedExcursion);
+                } else {
+                    excursionDao.insert(updatedExcursion);
+                }
+
+                runOnUiThread(() -> {
+                    finish();
+                });
+            });
+        } else {
+            // All inputs are required. Show a Snackbar.
+            Snackbar.make(findViewById(android.R.id.content), "All fields are required.", Snackbar.LENGTH_LONG).show();
+        }
+    }
 }
+
+

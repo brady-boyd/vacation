@@ -64,6 +64,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
     final SimpleDateFormat month_date = new SimpleDateFormat("MMMM", Locale.getDefault());
     final DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -318,13 +319,40 @@ public class VacationDetailsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadExcursions();
+        loadDataAndUpdateRecyclerView();
     }
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         excursionAdapter = new ExcursionAdapter(excursionDao);
         recyclerView.setAdapter(excursionAdapter);
+
+        // Handle click events on the excursion items
+        excursionAdapter.setOnItemClickListener(new ExcursionAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Excursion excursion) {
+                Intent intent = new Intent(VacationDetailsActivity.this, ExcursionActivity.class);
+                intent.putExtra("EXCURSION_ID", excursion.getId()); // assuming there is getId method in Excursion
+                intent.putExtra("vacationId", vacationId); // Add this line to include the vacation ID
+                startActivity(intent);
+            }
+        });
     }
+
+    private void loadDataAndUpdateRecyclerView() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Pass the vacationId to the method
+            List<Excursion> excursions = excursionDao.getAllForVacation(vacationId);
+            runOnUiThread(() -> {
+                if (excursionAdapter != null) {
+                    excursionAdapter.setExcursions(excursions);
+                    excursionAdapter.notifyDataSetChanged();
+                }
+            });
+        });
+    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -381,8 +409,6 @@ public class VacationDetailsActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void loadExcursions() {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
@@ -413,6 +439,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
         return true;
     }
+
 
     private void scheduleNotification(Calendar calendar, int notificationId, String message) {
         Intent notificationIntent = new Intent(this, NotificationReceiver.class);
@@ -461,3 +488,4 @@ public class VacationDetailsActivity extends AppCompatActivity {
         }
     }
 }
+

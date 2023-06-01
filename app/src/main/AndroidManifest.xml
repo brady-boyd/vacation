@@ -20,7 +20,8 @@
         <activity
             android:name=".UI.ExcursionActivity"
             android:label="Excursion Details"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="fullSensor">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -29,10 +30,12 @@
 
         <activity
             android:name=".UI.VacationDetailsActivity"
-            android:label="Vacation Details" />
+            android:label="Vacation Details"
+            android:screenOrientation="fullSensor"/>
 
         <activity
             android:name=".UI.VacationActivity"
+            android:screenOrientation="fullSensor"
             android:exported="false"
             android:label="Vacation List"
             android:parentActivityName=".UI.MainActivity">
@@ -43,6 +46,7 @@
 
         <activity
             android:name=".UI.MainActivity"
+            android:screenOrientation="fullSensor"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

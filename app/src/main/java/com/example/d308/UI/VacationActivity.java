@@ -96,7 +96,7 @@ public class VacationActivity extends AppCompatActivity implements VacationAdapt
                         @Override
                         public void run() {
                             // Show a Snackbar message indicating that the vacation cannot be deleted
-                            Snackbar.make(recyclerView, "Cannot delete vacation with excursions", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(recyclerView, "Can't delete vacation with excursions", Snackbar.LENGTH_SHORT).show();
                         }
                     });
                 } else {

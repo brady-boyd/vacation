@@ -13,16 +13,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.d308.R;
 import com.example.d308.dao.ExcursionDao;
+import com.example.d308.dao.VacationDao;
 import com.example.d308.database.AppDatabase;
 import com.example.d308.entities.Excursion;
 import com.example.d308.entities.Vacation;
-import com.example.d308.dao.VacationDao;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.ParseException;
@@ -256,8 +257,9 @@ public class ExcursionActivity extends AppCompatActivity {
                 this,
                 notificationId,
                 notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_ONE_SHOT
         );
+
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
@@ -280,15 +282,24 @@ public class ExcursionActivity extends AppCompatActivity {
             Date excursionDate = dateFormat.parse(excursionDateStr);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(excursionDate);
+            Calendar currentCalendar = Calendar.getInstance();
+            currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            currentCalendar.set(Calendar.MINUTE, 0);
+            currentCalendar.set(Calendar.SECOND, 0);
+            currentCalendar.set(Calendar.MILLISECOND, 0);
 
-            // Fetch the excursion title here
-            String excursionTitle = editTextExcursionTitle.getText().toString();
+            if (!calendar.before(currentCalendar)) {
+                // Fetch the excursion title here
+                String excursionTitle = editTextExcursionTitle.getText().toString();
 
-            // Now you can use excursionTitle in your message
-            String message = excursionTitle + " is today!";
-            scheduleNotification(calendar, NOTIFICATION_ID_EXCURSION, message);
+                // Now you can use excursionTitle in your message
+                String message = excursionTitle + " is today!";
+                scheduleNotification(calendar, NOTIFICATION_ID_EXCURSION, message);
 
-            showAlert();
+                showAlert();
+            } else {
+                Toast.makeText(getApplicationContext(), "Alerts can't be set for days in the past!", Toast.LENGTH_SHORT).show();
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }

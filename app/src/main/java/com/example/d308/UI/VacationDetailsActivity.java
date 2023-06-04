@@ -466,6 +466,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
     private void setAlert(MenuItem item) {
         String startDateStr = editTextStartDate.getText().toString();
         String endDateStr = editTextEndDate.getText().toString();
+        String vacationTitle = editTextTitle.getText().toString(); // retrieve vacation title
 
         if (startDateStr.isEmpty() && endDateStr.isEmpty()) {
             return;
@@ -490,7 +491,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
                                 currentCalendar.set(Calendar.SECOND, 0);
                                 currentCalendar.set(Calendar.MILLISECOND, 0);
                                 if (!calendarStart.before(currentCalendar)) {
-                                    scheduleNotification(calendarStart, NOTIFICATION_ID_START, "Today is the beginning of your vacation!");
+                                    scheduleNotification(calendarStart, NOTIFICATION_ID_START, "Today is the beginning of " + vacationTitle + "!");
                                     Toast.makeText(getApplicationContext(), "Start Date Alert Set", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Alerts cannot be set for days in the past!", Toast.LENGTH_SHORT).show();
@@ -512,7 +513,7 @@ public class VacationDetailsActivity extends AppCompatActivity {
                                 currentCalendar.set(Calendar.SECOND, 0);
                                 currentCalendar.set(Calendar.MILLISECOND, 0);
                                 if (!calendarEnd.before(currentCalendar)) {
-                                    scheduleNotification(calendarEnd, NOTIFICATION_ID_END, "Today is the end of your vacation!");
+                                    scheduleNotification(calendarEnd, NOTIFICATION_ID_END, "Today is the end of " + vacationTitle + "!");
                                     Toast.makeText(getApplicationContext(), "End Date Alert Set", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(getApplicationContext(), "Alerts cannot be set for days in the past!", Toast.LENGTH_SHORT).show();
@@ -531,7 +532,6 @@ public class VacationDetailsActivity extends AppCompatActivity {
         });
         popupMenu.show();
     }
-
 
 }
 
